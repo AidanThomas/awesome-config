@@ -111,8 +111,10 @@ function _M.get()
 
 		--   -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 		-- Prompt
-		awful.key({ modkey }, "r", function() awful.screen.focused().mypromptbox:run() end,
+		awful.key({ modkey }, "r", function() awful.spawn.with_shell("rofi -show drun") end,
 			{ description = "run prompt", group = "launcher" }),
+		awful.key({ modkey, "Shift" }, "w", function() awful.spawn.with_shell("rofi -show window") end,
+			{ description = "show list of windows", group = "awesome" }),
 
 		awful.key({ modkey }, "x",
 			function()
