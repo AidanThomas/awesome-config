@@ -35,12 +35,12 @@ function _M.get()
 			end,
 			{ description = "move to left screen", group = "client" }),
 		awful.key({ modkey, "Control", "Shift" }, "j", function(c)
-				c:move_to_screen(3)
+				c:move_to_screen(1)
 				require("awful.autofocus")
 			end,
 			{ description = "move to middle screen", group = "client" }),
 		awful.key({ modkey, "Control", "Shift" }, "k", function(c)
-				c:move_to_screen(1)
+				c:move_to_screen(3)
 				require("awful.autofocus")
 			end,
 			{ description = "move to right screen", group = "client" }),
