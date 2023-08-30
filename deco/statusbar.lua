@@ -15,6 +15,12 @@ local deco            = {
 
 local taglist_buttons = deco.taglist()
 
+-- Custom widgets
+local volume_widget   = require('awesome-wm-widgets.volume-widget.volume')
+local spotify_widget  = require("awesome-wm-widgets.spotify-widget.spotify")
+local todo_widget     = require("awesome-wm-widgets.todo-widget.todo")
+local docker_widget   = require("awesome-wm-widgets.docker-widget.docker")
+
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 -- {{{ Wibar
@@ -45,6 +51,31 @@ awful.screen.connect_for_each_screen(function(s)
 			spacing = 2,
 		}
 	}
+
+	-- Create the volume widget
+	s.volume = volume_widget({
+		mixer_cmd = "pavucontrol",
+		step = 5,
+		widget_type = "icon_and_text",
+		device = "pulse",
+	})
+
+	-- Create the spotify widget
+	s.spotify = spotify_widget({
+		max_length = 20,
+		dim_when_paused = true,
+		play_icon = "/home/aidant/.icons/Custom/spotify.svg",
+		pause_icon = "/home/aidant/.icons/Custom/spotify_colourless.svg",
+		font = beautiful.font,
+	})
+
+	-- Create todo widget
+	s.todo = todo_widget()
+
+	-- Create docker widget
+	s.docker = docker_widget({
+		icon = "/home/aidant/.icons/Custom/docker.svg",
+	})
 
 	-- Create the wibox
 	s.mywibox = awful.wibar({
@@ -87,9 +118,28 @@ awful.screen.connect_for_each_screen(function(s)
 					layout = wibox.layout.fixed.horizontal,
 					{
 						layout = wibox.container.margin,
+						left = 20,
 						right = 20,
-						s.mylayoutbox,
-					}
+						s.spotify
+					},
+					{
+						layout = wibox.container.margin,
+						left = 10,
+						right = 5,
+						s.docker
+					},
+					{
+						layout = wibox.container.margin,
+						left = 5,
+						right = 5,
+						s.todo
+					},
+					{
+						layout = wibox.container.margin,
+						left = 5,
+						right = 20,
+						s.volume
+					},
 				},
 			},
 			{
