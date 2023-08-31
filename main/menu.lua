@@ -25,19 +25,19 @@ M.awesome = {
 	{ "󰌌  Hotkeys", function()
 		hotkeys_popup.show_help(nil, awful.screen.focused())
 	end },
-	{ "  Manual",       terminal .. " -e man awesome" },
+	{ "  Manual", terminal .. " -e man awesome" },
 	{ "󰖷  Edit Config", editor_cmd .. " " .. awesome.conffile },
-	{ "  Restart",      awesome.restart },
+	{ "  Restart", awesome.restart },
 }
 
 M.settings = {
 	{ "  Appearance", "lxappearance" },
-	{ "󰕾  Sound",     "pavucontrol" },
+	{ "󰕾  Sound", "pavucontrol" },
 }
 
 M.power = {
-	{ "󰍃  Logout",  function() awesome.quit() end },
-	{ "  Reboot",   "reboot" },
+	{ "󰍃  Logout", function() awesome.quit() end },
+	{ "  Reboot", "reboot" },
 	{ "⏻  Shutdown", "shutdown -h now" },
 }
 
@@ -46,13 +46,13 @@ M.power = {
 function _M.get()
 	-- Main Menu
 	local menu_items = {
-		{ "󱃵  Awesome",  M.awesome },
-		{ "  Terminal",  terminal },
-		{ "  Browser",   "opera" },
-		{ "󰙯  Discord",  "discord" },
-		{ "  Files",     "nautilus" },
+		{ "󱃵  Awesome", M.awesome },
+		{ "  Terminal", terminal },
+		{ "󰈹  Browser", "firefox" },
+		{ "󰙯  Discord", "discord" },
+		{ "  Files", "nautilus" },
 		{ "󰒓  Settings", M.settings },
-		{ "⏻  Power",     M.power }
+		{ "⏻  Power", M.power }
 	}
 
 	return menu_items

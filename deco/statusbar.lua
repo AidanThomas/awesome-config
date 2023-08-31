@@ -130,13 +130,13 @@ awful.screen.connect_for_each_screen(function(s)
 						layout = wibox.container.margin,
 						left = 10,
 						right = 5,
-						s.notification_center
+						s.docker
 					},
 					{
 						layout = wibox.container.margin,
-						left = 10,
+						left = 5,
 						right = 5,
-						s.docker
+						s.notification_center
 					},
 					{
 						layout = wibox.container.margin,
