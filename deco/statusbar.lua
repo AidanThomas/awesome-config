@@ -64,8 +64,8 @@ awful.screen.connect_for_each_screen(function(s)
 	s.spotify = spotify_widget({
 		max_length = 20,
 		dim_when_paused = true,
-		play_icon = "/home/aidant/.icons/Custom/spotify.svg",
-		pause_icon = "/home/aidant/.icons/Custom/spotify_colourless.svg",
+		play_icon = os.getenv("HOME") .. "/.config/awesome/custom_icons/spotify.svg",
+		pause_icon = os.getenv("HOME") .. "/.config/awesome/custom_icons/spotify_colourless.svg",
 		font = beautiful.font,
 	})
 
@@ -74,7 +74,7 @@ awful.screen.connect_for_each_screen(function(s)
 
 	-- Create docker widget
 	s.docker = docker_widget({
-		icon = "/home/aidant/.icons/Custom/docker.svg",
+		icon = os.getenv("HOME") .. "/.config/awesome/custom_icons/docker.svg",
 	})
 
 	-- Create the wibox
