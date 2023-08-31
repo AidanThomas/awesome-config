@@ -16,16 +16,16 @@ local deco            = {
 local taglist_buttons = deco.taglist()
 
 -- Custom widgets
-local volume_widget   = require('awesome-wm-widgets.volume-widget.volume')
-local spotify_widget  = require("awesome-wm-widgets.spotify-widget.spotify")
-local todo_widget     = require("awesome-wm-widgets.todo-widget.todo")
-local docker_widget   = require("awesome-wm-widgets.docker-widget.docker")
+local volume_widget   = require("widgets.volume-widget.volume")
+local spotify_widget  = require("widgets.spotify-widget.spotify")
+local todo_widget     = require("widgets.todo-widget.todo")
+local docker_widget   = require("widgets.docker-widget.docker")
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock           = wibox.widget.textclock("%a %b %_d   %H:%M")
+local mytextclock     = wibox.widget.textclock("%a %b %_d   %H:%M")
 
 awful.screen.connect_for_each_screen(function(s)
 	-- Wallpaper
