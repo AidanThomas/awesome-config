@@ -1,17 +1,19 @@
 local awful = require("awful")
 local wibox = require("wibox")
-local naughty = require("naughty")
 local gears = require("gears")
+local naughty = require("naughty")
 local beautiful = require("beautiful")
 
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. "/.config/awesome/widgets/notification-center-widget"
 local ICONS_DIR = WIDGET_DIR .. "/icons/"
 
-local rows = { layout = wibox.layout.fixed.vertical }
-local notification_center_widget = {}
-local update_widget
-notification_center_widget.widget = wibox.widget {
+local M = {}
+
+M.notifications = {}
+M.rows = { layout = wibox.layout.fixed.vertical }
+M.notification_center = {}
+M.notification_center.widget = wibox.widget {
 	{
 		{
 			{
@@ -46,7 +48,7 @@ notification_center_widget.widget = wibox.widget {
 	end
 }
 
-local popup = awful.popup {
+M.popup = awful.popup {
 	bg = beautiful.bg_normal,
 	ontop = true,
 	visible = false,
@@ -58,37 +60,33 @@ local popup = awful.popup {
 	widget = {}
 }
 
-function notification_center_widget:update_counter(notifications)
-	local notification_count = 0
-	for _, p in ipairs(notifications) do
-		if not p.status then
-			notification_count = notification_count + 1
-		end
-	end
+M.rebuild_popup = function()
+	for i = 1, #M.rows do M.rows[i] = nil end
+	local first_row = wibox.widget {
+		{
+			{ widget = wibox.widget.textbox },
+			{
+				markup = '<span size="large" font_weight="bold" color="' ..
+					beautiful.fg_normal .. '">Notifications</span>',
+				align = 'center',
+				forced_width = 350,
+				forced_height = 40,
+				widget = wibox.widget.textbox
+			},
+			spacing = 8,
+			layout = wibox.layout.fixed.horizontal
+		},
+		bg = beautiful.bg_normal,
+		widget = wibox.container.background
+	}
+	table.insert(M.rows, first_row)
 
-	notification_center_widget.widget.set_text(notification_count)
-end
-
-local function worker(user_args)
-	local args = user_args or {}
-	local icon = args.icon or ICONS_DIR .. "/stock_bell.svg"
-
-	notification_center_widget.widget:set_icon(icon)
-	notification_center_widget.widget:set_text(0)
-
-	naughty.connect_signal("added", function()
-		notification_center_widget.widget:set_text(1)
-	end)
-
-	function update_widget()
-		for i = 0, #rows do rows[i] = nil end
-
-		local first_row = wibox.widget {
+	for _, notif in pairs(M.notifications) do
+		local row = wibox.widget {
 			{
 				{ widget = wibox.widget.textbox },
 				{
-					markup = '<span size="large" font_weight="bold" color="' ..
-						beautiful.fg_normal .. '">Notifications</span>',
+					text = notif.text,
 					align = 'center',
 					forced_width = 350,
 					forced_height = 40,
@@ -100,28 +98,47 @@ local function worker(user_args)
 			bg = beautiful.bg_normal,
 			widget = wibox.container.background
 		}
-
-		table.insert(rows, first_row)
-
-		popup:setup(rows)
+		table.insert(M.rows, row)
 	end
 
-	update_widget()
-	notification_center_widget.widget:buttons(
+	M.notification_center.widget:set_text(#M.rows - 1)
+	M.popup:setup(M.rows)
+end
+
+M.setup = function(user_args)
+	local args = user_args or {}
+	local icon = args.icon or ICONS_DIR .. "/stock_bell.svg"
+
+	M.notification_center.widget:set_icon(icon)
+	M.notification_center.widget:set_text(0)
+
+	M.rebuild_popup()
+
+	naughty.connect_signal("added", function(notif)
+		if M.notifications[notif.id] ~= nil then
+			return
+		else
+			M.notifications[notif.id] = notif
+			M.rebuild_popup()
+		end
+	end)
+
+
+	M.notification_center.widget:buttons(
 		gears.table.join(
 			awful.button({}, 1, function()
-				if popup.visible then
-					notification_center_widget.widget:set_bg("#00000000")
-					popup.visible = not popup.visible
+				if M.popup.visible then
+					M.notification_center.widget:set_bg("#00000000")
+					M.popup.visible = not M.popup.visible
 				else
-					notification_center_widget.widget:set_bg(beautiful.bg_focus)
-					popup:move_next_to(mouse.current_widget_geometry)
+					M.notification_center.widget:set_bg(beautiful.bg_focus)
+					M.popup:move_next_to(mouse.current_widget_geometry)
 				end
 			end)
 		)
 	)
 
-	return notification_center_widget.widget
+	return M.notification_center.widget
 end
 
-return setmetatable(notification_center_widget, { __call = function(_, ...) return worker(...) end })
+return M

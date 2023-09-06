@@ -112,7 +112,11 @@ function _M.get()
 		--   -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 		-- Prompt
 		awful.key({ modkey }, "r", function() awful.spawn.with_shell("rofi -show drun") end,
-			{ description = "run prompt", group = "launcher" }),
+			{ description = "Show application launcher menu", group = "launcher" }),
+		awful.key({ modkey }, "e", function()
+				awful.spawn.with_shell("rofi -show run")
+			end,
+			{ description = "Run from command line" }),
 		awful.key({ modkey, "Shift" }, "w", function() awful.spawn.with_shell("rofi -show window") end,
 			{ description = "show list of windows", group = "awesome" }),
 

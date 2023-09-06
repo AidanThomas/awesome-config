@@ -77,6 +77,9 @@ awful.rules.rules = main.rules(
 -- Signals
 require("main.signals")
 
+require("awful.autofocus")
+
 -- Autorun
 awful.spawn.with_shell("picom -b")
 awful.spawn.with_shell("~/.config/awesome/position_monitors.sh")
+awful.spawn.with_shell("xrdb ~/.Xresources")

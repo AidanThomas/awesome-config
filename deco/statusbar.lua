@@ -1,32 +1,32 @@
 -- Standard awesome library
-local gears                      = require("gears")
-local awful                      = require("awful")
-local beautiful                  = require("beautiful")
+local gears               = require("gears")
+local awful               = require("awful")
+local beautiful           = require("beautiful")
 
 -- Wibox handling library
-local wibox                      = require("wibox")
+local wibox               = require("wibox")
 
 -- Custom Local Library: Common Functional Decoration
-local deco                       = {
+local deco                = {
 	wallpaper = require("deco.wallpaper"),
 	taglist   = require("deco.taglist"),
 	tasklist  = require("deco.tasklist")
 }
 
-local taglist_buttons            = deco.taglist()
+local taglist_buttons     = deco.taglist()
 
 -- Custom widgets
-local volume_widget              = require("widgets.volume-widget.volume")
-local spotify_widget             = require("widgets.spotify-widget.spotify")
-local todo_widget                = require("widgets.todo-widget.todo")
-local docker_widget              = require("widgets.docker-widget.docker")
-local notification_center_widget = require("widgets.notification-center-widget.notification-center")
+local volume_widget       = require("widgets.volume-widget.volume")
+local spotify_widget      = require("widgets.spotify-widget.spotify")
+local todo_widget         = require("widgets.todo-widget.todo")
+local docker_widget       = require("widgets.docker-widget.docker")
+local notification_center = require("widgets.notification-center-widget.notification-center")
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 -- {{{ Wibar
 -- Create a textclock widget
-local mytextclock                = wibox.widget.textclock("%a %b %_d   %H:%M")
+local mytextclock         = wibox.widget.textclock("%a %b %_d   %H:%M")
 
 awful.screen.connect_for_each_screen(function(s)
 	-- Wallpaper
@@ -79,7 +79,7 @@ awful.screen.connect_for_each_screen(function(s)
 	})
 
 	-- Create the notification center widget
-	s.notification_center = notification_center_widget({})
+	s.notification_center = notification_center.setup({})
 
 	-- Create the wibox
 	s.mywibox = awful.wibar({
