@@ -13,6 +13,7 @@ local M = {}
 M.notifications = {}
 M.rows = { layout = wibox.layout.fixed.vertical }
 M.notification_center = {}
+M.clear_selected = false
 M.notification_center.widget = wibox.widget {
 	{
 		{
@@ -60,44 +61,156 @@ M.popup = awful.popup {
 	widget = {}
 }
 
-M.rebuild_popup = function()
-	for i = 1, #M.rows do M.rows[i] = nil end
-	local first_row = wibox.widget {
+M.dismiss = function(notif)
+	M.notifications[notif.id] = nil
+	M.rebuild_popup()
+end
+
+M.build_row = function(notif)
+	local row = wibox.widget {
 		{
-			{ widget = wibox.widget.textbox },
 			{
-				markup = '<span size="large" font_weight="bold" color="' ..
-					beautiful.fg_normal .. '">Notifications</span>',
-				align = 'center',
-				forced_width = 350,
-				forced_height = 40,
-				widget = wibox.widget.textbox
+				layout = wibox.container.margin,
+				top = 5,
+				{
+					layout = wibox.layout.stack,
+					{
+						layout = wibox.layout.align.horizontal,
+						{
+							layout = wibox.container.margin,
+							left = 10,
+							{
+								widget = wibox.widget.textbox,
+								font = beautiful.taglist_font,
+								text = notif.title,
+								align = 'left',
+								forced_height = 40,
+							},
+						},
+						nil,
+						{
+							layout = wibox.container.margin,
+							right = 10,
+							{
+								id = "dismiss",
+								widget = wibox.container.background,
+								shape = gears.shape.rounded_bar,
+								forced_width = 20,
+								forced_height = 20,
+								{
+									widget = wibox.widget.imagebox,
+									image = M.dismiss_icon,
+									forced_height = 20,
+									forced_width = 20,
+									valign = "center",
+								}
+							}
+						}
+					}
+				}
 			},
-			spacing = 8,
-			layout = wibox.layout.fixed.horizontal
+			{
+				layout = wibox.container.margin,
+				bottom = 5,
+				{
+					layout = wibox.container.margin,
+					left = 10,
+					{
+						widget = wibox.widget.textbox,
+						text = notif.text,
+						align = 'left',
+						forced_width = 400,
+						forced_height = 40,
+					},
+				},
+			},
+			layout = wibox.layout.flex.vertical,
 		},
 		bg = beautiful.bg_normal,
 		widget = wibox.container.background
 	}
+
+	local dismiss_button = row:get_children_by_id("dismiss")[1]
+	dismiss_button:connect_signal("button::press", function(c) M.dismiss(notif) end)
+	dismiss_button:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
+	dismiss_button:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
+
+	return row
+end
+
+M.rebuild_popup = function()
+	local function get_clear_bg()
+		if M.clear_selected then
+			return beautiful.bg_focus
+		else
+			return beautiful.bg_normal
+		end
+	end
+
+	M.rows = {
+		layout = wibox.layout.fixed.vertical,
+		spacing = 1,
+		spacing_widget = wibox.widget.separator,
+	}
+
+	local first_row = wibox.widget {
+		layout = wibox.layout.stack,
+		{
+			layout = wibox.layout.align.horizontal,
+			nil,
+			nil,
+			{
+				layout = wibox.container.margin,
+				right = 10,
+				{
+					id = "clear",
+					widget = wibox.container.background,
+					valign = "center",
+					halign = "center",
+					forced_width = 70,
+					bg = get_clear_bg(),
+					shape = gears.shape.rounded_rect,
+					{
+						valign = "center",
+						halign = "center",
+						widget = wibox.widget.textbox,
+						text = "Clear",
+						font = beautiful.font,
+					}
+				}
+			}
+		},
+		{
+			layout = wibox.container.place,
+			valign = "center",
+			halign = "center",
+			{
+				text = "Notifications",
+				font = beautiful.title_font,
+				valign = "center",
+				halign = "center",
+				forced_width = 400,
+				forced_height = 40,
+				widget = wibox.widget.textbox,
+			}
+		}
+	}
+
+	local clear_button = first_row:get_children_by_id("clear")[1]
+	clear_button:connect_signal("button::press", function()
+		M.notifications = {}
+		M.clear_selected = true
+		M.rebuild_popup()
+	end)
+	clear_button:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
+	clear_button:connect_signal("mouse::leave", function(c)
+		c:set_bg(beautiful.bg_normal)
+		M.clear_selected = false
+	end)
 	table.insert(M.rows, first_row)
 
 	for _, notif in pairs(M.notifications) do
-		local row = wibox.widget {
-			{
-				{ widget = wibox.widget.textbox },
-				{
-					text = notif.text,
-					align = 'center',
-					forced_width = 350,
-					forced_height = 40,
-					widget = wibox.widget.textbox
-				},
-				spacing = 8,
-				layout = wibox.layout.fixed.horizontal
-			},
-			bg = beautiful.bg_normal,
-			widget = wibox.container.background
-		}
+		local row = M.build_row(notif)
 		table.insert(M.rows, row)
 	end
 
@@ -108,6 +221,7 @@ end
 M.setup = function(user_args)
 	local args = user_args or {}
 	local icon = args.icon or ICONS_DIR .. "/stock_bell.svg"
+	M.dismiss_icon = args.dismiss_icon or ICONS_DIR .. "/trash3.svg"
 
 	M.notification_center.widget:set_icon(icon)
 	M.notification_center.widget:set_text(0)

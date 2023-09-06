@@ -4,6 +4,7 @@ local colours          = require("themes.tokyonight.colours")
 
 theme.font             = "RobotoMono Nerd Font 10" -- "Tamsyn 10" -- "Sans 8"
 theme.taglist_font     = "RobotoMono Nerd Font Bold 10"
+theme.title_font       = "RobotoMono Nerd Font Bold 12"
 
 theme.bg_normal        = colours.color['Night']
 theme.bg_focus         = colours.color['Terminal Black']
