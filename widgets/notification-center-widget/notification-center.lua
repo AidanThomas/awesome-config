@@ -64,6 +64,10 @@ M.popup = awful.popup {
 M.dismiss = function(notif)
 	M.notifications[notif.id] = nil
 	M.rebuild_popup()
+	if #M.rows == 1 then
+		M.notification_center.widget:set_bg("#00000000")
+		M.popup.visible = not M.popup.visible
+	end
 end
 
 M.build_row = function(notif)
@@ -72,6 +76,7 @@ M.build_row = function(notif)
 			{
 				layout = wibox.container.margin,
 				top = 5,
+				bottom = 5,
 				{
 					layout = wibox.layout.stack,
 					{
@@ -81,13 +86,22 @@ M.build_row = function(notif)
 							left = 10,
 							{
 								widget = wibox.widget.textbox,
-								font = beautiful.taglist_font,
+								font = beautiful.notif_font,
 								text = notif.title,
 								align = 'left',
-								forced_height = 40,
+								valign = 'bottom',
 							},
 						},
-						nil,
+						{
+							layout = wibox.container.margin,
+							left = 10,
+							{
+								widget = wibox.widget.textbox,
+								text = os.date("%H:%M"),
+								align = 'left',
+								valign = 'bottom',
+							},
+						},
 						{
 							layout = wibox.container.margin,
 							right = 10,
@@ -96,7 +110,6 @@ M.build_row = function(notif)
 								widget = wibox.container.background,
 								shape = gears.shape.rounded_bar,
 								forced_width = 20,
-								forced_height = 20,
 								{
 									widget = wibox.widget.imagebox,
 									image = M.dismiss_icon,
@@ -115,20 +128,27 @@ M.build_row = function(notif)
 				{
 					layout = wibox.container.margin,
 					left = 10,
+					right = 10,
 					{
 						widget = wibox.widget.textbox,
 						text = notif.text,
 						align = 'left',
 						forced_width = 400,
-						forced_height = 40,
+						ellipsize = "end",
+						wrap = "word"
 					},
 				},
 			},
-			layout = wibox.layout.flex.vertical,
+			layout = wibox.layout.fixed.vertical,
 		},
 		bg = beautiful.bg_normal,
 		widget = wibox.container.background
 	}
+
+	-- row:connect_signal("button::press", function() M.dismiss(notif) end)
+	-- row:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
+	-- row:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
+
 
 	local dismiss_button = row:get_children_by_id("dismiss")[1]
 	dismiss_button:connect_signal("button::press", function(c) M.dismiss(notif) end)
@@ -154,44 +174,46 @@ M.rebuild_popup = function()
 	}
 
 	local first_row = wibox.widget {
-		layout = wibox.layout.stack,
+		layout = wibox.container.margin,
+		top = 8,
+		bottom = 10,
 		{
-			layout = wibox.layout.align.horizontal,
-			nil,
-			nil,
+			layout = wibox.layout.stack,
 			{
-				layout = wibox.container.margin,
-				right = 10,
+				layout = wibox.layout.align.horizontal,
+				nil,
+				nil,
 				{
-					id = "clear",
-					widget = wibox.container.background,
-					valign = "center",
-					halign = "center",
-					forced_width = 70,
-					bg = get_clear_bg(),
-					shape = gears.shape.rounded_rect,
+					layout = wibox.container.margin,
+					right = 10,
 					{
-						valign = "center",
-						halign = "center",
-						widget = wibox.widget.textbox,
-						text = "Clear",
-						font = beautiful.font,
+						id = "clear",
+						widget = wibox.container.background,
+						forced_width = 70,
+						bg = get_clear_bg(),
+						shape = gears.shape.rounded_rect,
+						{
+							valign = "bottom",
+							halign = "center",
+							widget = wibox.widget.textbox,
+							text = "Clear",
+							font = beautiful.font,
+						}
 					}
 				}
-			}
-		},
-		{
-			layout = wibox.container.place,
-			valign = "center",
-			halign = "center",
+			},
 			{
-				text = "Notifications",
-				font = beautiful.title_font,
+				layout = wibox.container.place,
 				valign = "center",
 				halign = "center",
-				forced_width = 400,
-				forced_height = 40,
-				widget = wibox.widget.textbox,
+				{
+					text = "Notifications",
+					font = beautiful.title_font,
+					valign = "bottom",
+					halign = "center",
+					forced_width = 400,
+					widget = wibox.widget.textbox,
+				}
 			}
 		}
 	}
@@ -199,7 +221,9 @@ M.rebuild_popup = function()
 	local clear_button = first_row:get_children_by_id("clear")[1]
 	clear_button:connect_signal("button::press", function()
 		M.notifications = {}
-		M.clear_selected = true
+		M.clear_selected = false
+		M.notification_center.widget:set_bg("#00000000")
+		M.popup.visible = not M.popup.visible
 		M.rebuild_popup()
 	end)
 	clear_button:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
