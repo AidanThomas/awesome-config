@@ -239,15 +239,21 @@ M.rebuild_popup = function()
 	end
 
 	M.notification_center.widget:set_text(#M.rows - 1)
+	if #M.rows > 1 then
+		M.notification_center.widget:set_icon(M.icon)
+	else
+		M.notification_center.widget:set_icon(M.empty_icon)
+	end
 	M.popup:setup(M.rows)
 end
 
 M.setup = function(user_args)
 	local args = user_args or {}
-	local icon = args.icon or ICONS_DIR .. "/stock_bell.svg"
-	M.dismiss_icon = args.dismiss_icon or ICONS_DIR .. "/trash3.svg"
+	M.empty_icon = args.empty_icon or ICONS_DIR .. "/bell_none.png"
+	M.icon = args.icon or ICONS_DIR .. "/bell.png"
+	M.dismiss_icon = args.dismiss_icon or ICONS_DIR .. "/trash.svg"
 
-	M.notification_center.widget:set_icon(icon)
+	M.notification_center.widget:set_icon(M.icon)
 	M.notification_center.widget:set_text(0)
 
 	M.rebuild_popup()
