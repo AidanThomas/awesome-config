@@ -249,12 +249,19 @@ end
 
 M.setup = function(user_args)
 	local args = user_args or {}
+	M.stop_display = args.stop_display or true
 	M.empty_icon = args.empty_icon or ICONS_DIR .. "/bell_none.png"
 	M.icon = args.icon or ICONS_DIR .. "/bell.png"
 	M.dismiss_icon = args.dismiss_icon or ICONS_DIR .. "/trash.svg"
 
 	M.notification_center.widget:set_icon(M.icon)
 	M.notification_center.widget:set_text(0)
+
+	if M.stop_display then
+		naughty.connect_signal("request::display", function(notif)
+			notif.ignore = true
+		end)
+	end
 
 	M.rebuild_popup()
 
