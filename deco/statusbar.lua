@@ -21,6 +21,7 @@ local spotify_widget      = require("widgets.spotify-widget.spotify")
 local todo_widget         = require("widgets.todo-widget.todo")
 local docker_widget       = require("widgets.docker-widget.docker")
 local notification_center = require("widgets.notification-center-widget.notification-center")
+local calendar            = require("widgets.calendar-widget.calendar")
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -40,172 +41,11 @@ local textclock           = wibox.widget {
 	}
 }
 
-local styles              = {}
-local function rounded_shape(size, partial)
-	if partial then
-		return function(cr, width, height)
-			gears.shape.partially_rounded_rect(cr, width, height,
-				false, true, false, true, 5)
-		end
-	else
-		return function(cr, width, height)
-			gears.shape.rounded_rect(cr, width, height, size)
-		end
-	end
-end
-styles.month   = {
-	padding      = 5,
-	bg_color     = beautiful.bg_normal,
-	border_width = 0,
-	shape        = rounded_shape(10)
-}
-styles.normal  = {
-	shape = rounded_shape(5),
-	border_width = 1,
-	border_color = beautiful.bg_normal
-}
-styles.focus   = {
-	fg_color     = beautiful.taglist_fg_focus,
-	markup       = function(t) return '<b>' .. t .. '</b>' end,
-	shape        = rounded_shape(5, true),
-	border_width = 1,
-	border_color = beautiful.taglist_fg_focus
-}
-styles.header  = {
-	fg_color = beautiful.fg_normal,
-	bg_color = beautiful.bg_normal,
-	markup   = function(t) return '<b>' .. t .. '</b>' end,
-	shape    = rounded_shape(10)
-}
-styles.weekday = {
-	fg_color = beautiful.fg_normal,
-	markup   = function(t) return '<b>' .. t .. '</b>' end,
-	shape    = rounded_shape(5)
-}
-local function decorate_cell(widget, flag, date)
-	if flag == "monthheader" and not styles.monthheader then
-		flag = "header"
-	end
-	local props = styles[flag] or {}
-	if props.markup and widget.get_text and widget.set_markup then
-		widget:set_markup(props.markup(widget:get_text()))
-	end
-	-- Change bg color for weekends
-	local d = { year = date.year, month = (date.month or 1), day = (date.day or 1) }
-	local weekday = tonumber(os.date("%w", os.time(d)))
-	local default_bg = (weekday == 0 or weekday == 6) and beautiful.bg_focus or beautiful.bg_normal
-	local ret = wibox.widget {
-		{
-			widget,
-			margins = (props.padding or 2) + (props.border_width or 0),
-			widget  = wibox.container.margin
-		},
-		shape        = props.shape,
-		border_color = props.border_color or beautiful.border_normal,
-		border_width = props.border_width or 0,
-		fg           = props.fg_color or beautiful.fg_normal,
-		bg           = props.bg_color or default_bg,
-		widget       = wibox.container.background
-	}
-	return ret
-end
-local calendar_open = false
-local cal           = wibox.widget {
-	date = os.date("*t"),
-	fn_embed = decorate_cell, -- function to modify individual cells
-	widget = wibox.widget.calendar.month
-}
-local cal_popup     = awful.popup {
-	widget = {
-		layout = wibox.layout.fixed.vertical,
-		{
-			layout = wibox.container.margin,
-			top = 10,
-			{
-				layout = wibox.layout.flex.horizontal,
-				{
-					layout = wibox.container.background,
-					shape = gears.shape.rounded_bar,
-					id = "prev_month",
-					{
-						widget = wibox.widget.textbox,
-						font = beautiful.font,
-						text = "",
-						halign = 'center',
-						valign = 'bottom'
-					}
-				},
-				{
-					layout = wibox.container.background,
-					shape = gears.shape.rounded_bar,
-					id = "next_month",
-					{
-						widget = wibox.widget.textbox,
-						font = beautiful.font,
-						text = "",
-						halign = 'center',
-						valign = 'bottom'
-					}
-				}
-			}
-		},
-		{
-			layout = wibox.container.margin,
-			left = 10,
-			right = 10,
-			bottom = 10,
-			{
-				id = "calendar",
-				layout = wibox.container.background,
-				cal
-			}
-		}
-	},
-	bg = beautiful.bg_normal,
-	ontop = true,
-	visible = false,
-	shape = gears.shape.rounded_rect,
-	border_width = 1,
-	border_color = beautiful.bg_focus,
-	maximum_width = 400,
-	offset = { x = 35, y = 5 },
-}
-
-local next          = cal_popup.widget:get_children_by_id("next_month")[1]
-local prev          = cal_popup.widget:get_children_by_id("prev_month")[1]
-
-next:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
-next:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
-next:connect_signal("button::press", function()
-	local date = cal:get_date()
-	local current = os.date("*t")
-	date.month = date.month + 1
-	if date.month == current.month and date.year == current.year then
-		date.day = current.day
-	else
-		date.day = nil
-	end
-	cal:set_date(nil)
-	cal:set_date(date)
-end)
-prev:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
-prev:connect_signal("mouse::leave", function(c) c:set_bg(beautiful.bg_normal) end)
-prev:connect_signal("button::press", function()
-	local date = cal:get_date()
-	local current = os.date("*t")
-	date.month = date.month - 1
-	if date.month == current.month and date.year == current.year then
-		date.day = current.day
-	else
-		date.day = nil
-	end
-	cal:set_date(nil)
-	cal:set_date(date)
-end)
+local cal_popup           = calendar.setup()
 
 textclock:connect_signal("mouse::enter", function(c) c:set_bg(beautiful.bg_focus) end)
 textclock:connect_signal("mouse::leave", function(c)
-	if not calendar_open then
+	if not calendar.calendar_open then
 		c:set_bg(beautiful.bg_normal)
 	end
 end)
@@ -215,11 +55,11 @@ textclock:buttons(
 			if cal_popup.visible then
 				cal_popup.visible = not cal_popup.visible
 			else
-				cal:set_date(nil)
-				cal:set_date(os.date("*t"))
+				calendar.cal:set_date(nil)
+				calendar.cal:set_date(os.date("*t"))
 				cal_popup:move_next_to(mouse.current_widget_geometry)
 			end
-			calendar_open = not calendar_open
+			calendar.calendar_open = not calendar.calendar_open
 		end)
 	)
 )
