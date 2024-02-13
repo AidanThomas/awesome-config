@@ -22,6 +22,7 @@ local todo_widget         = require("widgets.todo-widget.todo")
 local docker_widget       = require("widgets.docker-widget.docker")
 local notification_center = require("widgets.notification-center-widget.notification-center")
 local calendar            = require("widgets.calendar-widget.calendar")
+local tray                = require("widgets.tray-widget.tray")
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -117,6 +118,11 @@ awful.screen.connect_for_each_screen(function(s)
 	-- Create the notification center widget
 	s.notification_center = notification_center.setup({})
 
+	-- Create the tray widget
+	s.tray = tray.setup({
+		icon = "/aidant/home/.config/awesome/widgets/icons/tray.png"
+	})
+
 	-- Create the wibox
 	s.mywibox = awful.wibar({
 		stretch = false,
@@ -168,6 +174,12 @@ awful.screen.connect_for_each_screen(function(s)
 						right = 5,
 						s.docker
 					},
+					-- {
+					-- 	layout = wibox.container.margin,
+					-- 	left = 5,
+					-- 	right = 5,
+					-- 	s.tray
+					-- },
 					{
 						layout = wibox.container.margin,
 						left = 5,

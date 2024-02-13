@@ -21,19 +21,20 @@ M.rounded_shape  = function(size, partial)
 end
 
 M.styles.month   = {
-	padding      = 5,
-	bg_color     = beautiful.bg_normal,
-	border_width = 0,
-	shape        = M.rounded_shape(10)
+	padding  = 5,
+	bg_color = beautiful.bg_normal,
+	shape    = M.rounded_shape(10)
 }
 M.styles.normal  = {
 	shape = M.rounded_shape(5),
+	padding = 2,
 }
 M.styles.focus   = {
 	fg_color     = beautiful.taglist_fg_focus,
 	markup       = function(t) return '<b>' .. t .. '</b>' end,
-	shape        = M.rounded_shape(5, true),
+	shape        = M.rounded_shape(5),
 	border_width = 1,
+	padding      = 1,
 	border_color = beautiful.taglist_fg_focus
 }
 M.styles.header  = {
@@ -59,7 +60,7 @@ M.decorate_cell  = function(widget, flag, date)
 	-- Change bg color for weekends
 	local d = { year = date.year, month = (date.month or 1), day = (date.day or 1) }
 	local weekday = tonumber(os.date("%w", os.time(d)))
-	local default_border_color = (weekday == 0 or weekday == 6) and beautiful.bg_focus or beautiful.bg_normal
+	local deafult_fg_color = (weekday == 0 or weekday == 6) and beautiful.fg_red or beautiful.fg_normal
 	local ret = wibox.widget {
 		{
 			widget,
@@ -67,9 +68,9 @@ M.decorate_cell  = function(widget, flag, date)
 			widget  = wibox.container.margin
 		},
 		shape        = props.shape,
-		border_color = props.border_color or default_border_color,
+		border_color = props.border_color or beautiful.bg_normal,
 		border_width = props.border_width or 1,
-		fg           = props.fg_color or beautiful.fg_normal,
+		fg           = props.fg_color or deafult_fg_color,
 		bg           = props.bg_color or beautiful.bg_normal,
 		widget       = wibox.container.background
 	}

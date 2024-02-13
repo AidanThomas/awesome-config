@@ -72,3 +72,5 @@ theme.menu_border_width      = 1
 --theme.bg_widget = "#cc0000"
 theme.statusbar_spacing      = 10
 theme.statusbar_border_color = colours.color["Terminal Black"]
+
+theme.fg_red                 = colours.color["Terminal Red"]
